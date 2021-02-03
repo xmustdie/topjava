@@ -26,7 +26,6 @@ public class UserMealsUtil {
         for (UserMealWithExcess userMealWithExcess : mealsTo) {
             System.out.println(userMealWithExcess);
         }
-        System.out.println("===============================");
         System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
