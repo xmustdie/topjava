@@ -40,8 +40,8 @@ public class UserMealsUtil {
         List<UserMealWithExcess> userMealWithExcessList = new ArrayList<>();
         meals.forEach(userMeal -> {
             LocalDateTime localDateTime = userMeal.getDateTime();
-            if (TimeUtil.isBetweenHalfOpen(userMeal.getDateTime().toLocalTime(), startTime, endTime)) {
-                UserMealWithExcess userMealWithExcess = new UserMealWithExcess(userMeal.getDateTime(),
+            if (TimeUtil.isBetweenHalfOpen(localDateTime.toLocalTime(), startTime, endTime)) {
+                UserMealWithExcess userMealWithExcess = new UserMealWithExcess(localDateTime,
                         userMeal.getDescription(),
                         userMeal.getCalories(),
                         sumCaloriesPerDaysMap.get(localDateTime.toLocalDate()) > caloriesPerDay);
