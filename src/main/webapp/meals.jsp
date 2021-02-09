@@ -1,0 +1,51 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<html lang="ru">
+<head>
+    <title>Meals</title>
+</head>
+<body>
+<h3><a href="index.html">Home</a></h3>
+<hr>
+<h2>Meals</h2>
+<br>
+<table border="1px" cellspacing="0" cellpadding="3">
+    <tr>
+        <th>Date & Time</th>
+        <th>Description</th>
+        <th>Calories</th>
+        <th></th>
+        <th></th>
+
+    </tr>
+    <c:forEach var="meal" items="${allMeals}">
+        <c:url var ="updateButton" value="update">
+            <c:param name="id" value="${meal.id}"/>
+        </c:url>
+        <c:url var ="deleteButton" value="delete">
+            <c:param name="id" value="${meal.id}"/>
+        </c:url>
+        <c:set var="rowColor" value="${meal.excess ? 'crimson' : 'green'}" />
+        <tr style="color: ${rowColor}"  >
+            <td width="150px" align="center">
+                <fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime"
+                                   type="both" />
+                <fmt:formatDate pattern="dd.MM.yyyy HH:mm" value="${parsedDateTime}" /></td>
+            <td width="250px" align="center">${meal.description}</td>
+            <td width="100px" align="center">${meal.calories}</td>
+            <td width="80px" align="center">
+                <input type="button"  value="Update"  onclick="window.location.href = '${updateButton}'"/>
+            </td>
+            <td width="80px" align="center">
+                <input type="button"  value="Delete"  onclick="window.location.href = '${deleteButton}'"/>
+            </td>
+        </tr>
+    </c:forEach>
+</table>
+<c:url var ="addMealButton" value="editor.jsp">
+    <c:param name="dateTime" value="${meal.dateTime}"/>
+</c:url>
+<input type="button"  value="ADD MEAL"  onclick="window.location.href = '${addMealButton}'"/>
+</body>
+</html>
