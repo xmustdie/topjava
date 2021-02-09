@@ -43,9 +43,8 @@
         </tr>
     </c:forEach>
 </table>
-<c:url var ="addMealButton" value="editor.jsp">
-    <c:param name="dateTime" value="${meal.dateTime}"/>
-</c:url>
+<br>
+<c:url var ="addMealButton" value="create"/>
 <input type="button"  value="ADD MEAL"  onclick="window.location.href = '${addMealButton}'"/>
 </body>
 </html>

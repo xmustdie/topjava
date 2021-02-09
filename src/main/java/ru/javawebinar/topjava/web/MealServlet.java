@@ -3,6 +3,8 @@ package ru.javawebinar.topjava.web;
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
+import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.service.MealServiceImpl;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.ServletException;
@@ -12,8 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -21,36 +21,54 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class MealServlet extends HttpServlet {
     private static final int MAX_CALORIES = 2000;
     private static final Logger log = getLogger(MealServlet.class);
-    private static final List<Meal> MEALS = Arrays.asList(
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
-    );
+    private final MealService mealService = new MealServiceImpl();
+
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         log.debug("redirect to meals");
 
         String action = request.getHttpServletMapping().getMatchValue();
-        int id = Integer.parseInt(request.getParameter("id"));
+        int id;
         switch (action) {
             case "delete":
-                System.out.println("delete meal with id = " + id);
+                id = Integer.parseInt(request.getParameter("id"));
+                log.debug("delete meal with id = " + id);
+                mealService.delete(id);
                 break;
             case "update":
-                System.out.println("update meal with id = " + id);
+                id = Integer.parseInt(request.getParameter("id"));
+                log.debug("update meal with id = " + id);
+                Meal meal = mealService.get(id);
+                request.setAttribute("myMeal", meal);
+                request.getRequestDispatcher("editor.jsp").forward(request, response);
                 break;
             case "create":
-                System.out.println("do smthng");
+                log.debug("create meal");
+                request.getRequestDispatcher("editor.jsp").forward(request, response);
                 break;
         }
-        List<MealTo> mealsTo = MealsUtil.filteredByStreams(MEALS, LocalTime.MIN, LocalTime.MAX, MAX_CALORIES);
+        List<Meal> meals = mealService.getAll();
+        List<MealTo> mealsTo = MealsUtil.filteredByStreams(meals, LocalTime.MIN,
+                LocalTime.MAX, MAX_CALORIES);
+
         request.setAttribute("allMeals", mealsTo);
-//        System.out.println(mealsTo);
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Meal meal = new Meal();
+        meal.setDateTime(LocalDateTime.parse(request.getParameter("dateTime")));
+        meal.setDescription(request.getParameter("description"));
+        meal.setCalories(Integer.parseInt(request.getParameter("calories")));
+
+        List<MealTo> mealsTo = MealsUtil.filteredByStreams(mealService.getAll(), LocalTime.MIN,
+                LocalTime.MAX, MAX_CALORIES);
+        request.setAttribute("allMeals", mealsTo);
+        request.getRequestDispatcher("/meals.jsp").forward(request, response);
+    }
+
 }
