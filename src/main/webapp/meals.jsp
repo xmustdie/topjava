@@ -17,7 +17,6 @@
         <th>Calories</th>
         <th></th>
         <th></th>
-
     </tr>
 
     <c:forEach var="meal" items="${mealTos}">
@@ -29,13 +28,14 @@
             <c:param name="action" value="delete"/>
             <c:param name="id" value="${meal.id}"/>
         </c:url>
+
         <c:set var="rowColor" value="${meal.excess ? 'crimson' : 'green'}"/>
         <tr style="color: ${rowColor}">
             <td width="150px" align="center">
                 <fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm"
                                var="parsedDateTime"
                                type="both"/>
-                <fmt:formatDate pattern="dd.MM.yyyy HH:mm" value="${parsedDateTime}"/></td>
+                <fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${parsedDateTime}"/></td>
             <td width="250px" align="center">${meal.description}</td>
             <td width="100px" align="center">${meal.calories}</td>
             <td width="80px" align="center">

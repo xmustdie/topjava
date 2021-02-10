@@ -4,7 +4,7 @@ import ru.javawebinar.topjava.model.Meal;
 
 import java.util.List;
 
-public interface MealDAO {
+public interface MealDao {
     List<Meal> getAll();
 
     Meal save(Meal meal);

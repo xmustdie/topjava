@@ -2,16 +2,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
-
 <!DOCTYPE html>
 <html>
 
 <body>
+<%--@elvariable id="meal" type="ru.javawebinar.topjava.model.Meal"--%>
+<c:set var="operation" value="${empty meal.id || meal.id == 0 ? 'Create' : 'Edit'}"/>
+<h2> ${operation} meal</h2>
 
-<h2> Edit/Create meal</h2>
-<%--<jsp:useBean id="meal" scope="request" type="ru.javawebinar.topjava.model.Meal"/>--%>
 <form method="POST" action='meals' name="addMeal">
-    <%--@elvariable id="meal" type="ru.javawebinar.topjava.model.Meal"--%>
     <input type="text" name="id" hidden value="${meal.id}">
     <table width="400px">
         <tr>
@@ -32,7 +31,7 @@
         <tr>
             <td width="180px">Calories</td>
             <td>
-                <input type="text" name="calories"
+                <input type="number" name="calories"
                        value="${meal.calories}"/>
             </td>
         </tr>
@@ -49,9 +48,5 @@
         </tr>
     </table>
 </form>
-
-
-
-
 </body>
 </html>
