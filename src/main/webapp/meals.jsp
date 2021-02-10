@@ -19,32 +19,40 @@
         <th></th>
 
     </tr>
-    <c:forEach var="meal" items="${allMeals}">
-        <c:url var ="updateButton" value="update">
+
+    <c:forEach var="meal" items="${mealTos}">
+        <c:url var="updateButton" value="meals">
+            <c:param name="action" value="update"/>
             <c:param name="id" value="${meal.id}"/>
         </c:url>
-        <c:url var ="deleteButton" value="delete">
+        <c:url var="deleteButton" value="meals">
+            <c:param name="action" value="delete"/>
             <c:param name="id" value="${meal.id}"/>
         </c:url>
-        <c:set var="rowColor" value="${meal.excess ? 'crimson' : 'green'}" />
-        <tr style="color: ${rowColor}"  >
+        <c:set var="rowColor" value="${meal.excess ? 'crimson' : 'green'}"/>
+        <tr style="color: ${rowColor}">
             <td width="150px" align="center">
-                <fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime"
-                                   type="both" />
-                <fmt:formatDate pattern="dd.MM.yyyy HH:mm" value="${parsedDateTime}" /></td>
+                <fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm"
+                               var="parsedDateTime"
+                               type="both"/>
+                <fmt:formatDate pattern="dd.MM.yyyy HH:mm" value="${parsedDateTime}"/></td>
             <td width="250px" align="center">${meal.description}</td>
             <td width="100px" align="center">${meal.calories}</td>
             <td width="80px" align="center">
-                <input type="button"  value="Update"  onclick="window.location.href = '${updateButton}'"/>
+                <input type="button" value="Update"
+                       onclick="window.location.href = '${updateButton}'"/>
             </td>
             <td width="80px" align="center">
-                <input type="button"  value="Delete"  onclick="window.location.href = '${deleteButton}'"/>
+                <input type="button" value="Delete"
+                       onclick="window.location.href = '${deleteButton}'"/>
             </td>
         </tr>
     </c:forEach>
 </table>
 <br>
-<c:url var ="addMealButton" value="create"/>
-<input type="button"  value="ADD MEAL"  onclick="window.location.href = '${addMealButton}'"/>
+<c:url var="addButton" value="meals">
+    <c:param name="action" value="create"/>
+</c:url>
+<input type="button" value="ADD MEAL" onclick="window.location.href = '${addButton}'"/>
 </body>
 </html>
