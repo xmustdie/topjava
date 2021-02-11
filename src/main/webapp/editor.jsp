@@ -16,7 +16,6 @@
         <tr>
             <td width="180px">Date</td>
             <td>
-                <c:set var="dt" value="${meal}}"/>
                 <input type="datetime-local" name="dateTime"
                        value="${meal.dateTime}"/>
             </td>
@@ -39,8 +38,7 @@
             <td width="180px"></td>
             <td>
                 <c:url var="saveButton" value="meals"/>
-                <input type="submit" value="Save" onclick="window.location.href =
-                        '${saveButton}'"/>
+                <input type="submit" value="Save"/>
                 <c:url var="cancelButton" value="meals"/>
                 <input type="button" value="Cancel" onclick="window.location.href =
                         '${cancelButton}'"/>

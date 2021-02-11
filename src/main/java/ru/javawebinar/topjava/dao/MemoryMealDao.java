@@ -5,17 +5,18 @@ import ru.javawebinar.topjava.model.Meal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MealDaoMemoryImpl implements MealDao {
+public class MemoryMealDao implements MealDao {
     private static AtomicInteger counter = new AtomicInteger(0);
 
-    private static Map<Integer, Meal> storage;
+    private volatile Map<Integer, Meal> storage;
 
-    static {
+     {
         storage = new ConcurrentHashMap<>();
         storage.put(counter.incrementAndGet(), new Meal(counter.get(),
                 LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0),
@@ -47,18 +48,24 @@ public class MealDaoMemoryImpl implements MealDao {
 
     @Override
     public Meal save(Meal meal) {
-        int id;
-        if (meal.getId() == 0 || !storage.containsKey(meal.getId())) {
-            id = counter.incrementAndGet();
-            storage.put(id, new Meal(id, meal.getDateTime(), meal.getDescription(),
-                    meal.getCalories()));
-        } else {
-            id = meal.getId();
-            storage.merge(id, new Meal(id, meal.getDateTime(),
-                    meal.getDescription(),
-                    meal.getCalories()), (meal1, meal2) -> meal);
+
+        // [уй его знает чо делать
+        synchronized (storage) {
+            int id;
+            if (meal.getId() == 0) {
+                id = counter.incrementAndGet();
+                storage.put(id, new Meal(id, meal.getDateTime(), meal.getDescription(),
+                        meal.getCalories()));
+                return storage.get(id);
+            } else if (!storage.containsKey(meal.getId())) {
+                return null;
+            } else {
+                id = meal.getId();
+                storage.put(id, new Meal(id, meal.getDateTime(), meal.getDescription(),
+                        meal.getCalories()));
+                return storage.get(id);
+            }
         }
-        return storage.get(id);
     }
 
     @Override
