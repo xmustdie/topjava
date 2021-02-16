@@ -11,7 +11,6 @@ import ru.javawebinar.topjava.util.MealsUtil;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,38 +25,43 @@ public class InMemoryMealRepository implements MealRepository {
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(m -> save(m, 1));
+        MealsUtil.meals.forEach(m -> save(m, 1));
     }
 
     @Override
     public Meal save(Meal meal, int userId) {
         log.info("save {}", meal);
-        Map<Integer, Meal> userMeals = repository.getOrDefault(userId, new HashMap<>());
-        if (meal.isNew()) {
-            meal.setId(counter.incrementAndGet());
-        } else if (userMeals.get(meal.getId()) == null) {
-            return null;
-        }
-        userMeals.put(meal.getId(), meal);
-        repository.put(userId, userMeals);
-        return meal;
+
+        Map<Integer, Meal> userMeals = repository.computeIfAbsent(userId,
+                (v) -> new ConcurrentHashMap<>());
+            if (meal.isNew()) {
+                meal.setId(counter.incrementAndGet());
+            } else if (userMeals.get(meal.getId()) == null) {
+                return null;
+            }
+            userMeals.put(meal.getId(), meal);
+            return meal;
     }
 
     @Override
     public boolean delete(int id, int userId) {
-        return repository.getOrDefault(userId, new ConcurrentHashMap<>()).remove(id) != null;
+        if (repository.get(userId) != null) {
+            return repository.get(userId).remove(id) != null;
+        } else
+            return false;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        return repository.getOrDefault(userId, new ConcurrentHashMap<>()).get(id);
+        if (repository.get(userId) != null) {
+            return repository.get(userId).get(id);
+        } else
+            return null;
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return repository.getOrDefault(userId, new ConcurrentHashMap<>()).values().stream()
-                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                .collect(Collectors.toList());
+        return getAllFilterByDate(userId, LocalDate.MIN, LocalDate.MAX);
     }
 
     @Override
