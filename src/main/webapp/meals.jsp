@@ -49,6 +49,31 @@
             </tr>
         </c:forEach>
     </table>
+    <br>
+    <br>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>От даты</th>
+            <th>До даты</th>
+            <th>От времени</th>
+            <th>До времени</th>
+            <th></th>
+        </tr>
+        <form method="get" action="meals">
+            <tr>
+                <c:set var="startDate" value=""/>
+                <c:set var="endDate" value=""/>
+                <c:set var="startTime" value=""/>
+                <c:set var="endTime" value=""/>
+                <input type="hidden" name="action" value="filter">
+                <td><input type="date" name="startDate" value="${startDate}"></td>
+                <td><input type="date" name="endDate" value="${endDate}"></td>
+                <td><input type="time" name="startTime" value="${startTime}"></td>
+                <td><input type="time" name="endTime" value="${endTime}"></td>
+                <td><button type="submit">Применить фильтр</button></td>
+            </tr>
+        </form>
+    </table>
 </section>
 </body>
 </html>

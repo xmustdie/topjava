@@ -60,9 +60,19 @@ public class MealRestController {
         service.delete(id, SecurityUtil.authUserId());
     }
 
-    public void update(Meal meal, int id) {
+    public void save(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
         assureIdConsistent(meal, id);
-        service.update(meal, SecurityUtil.authUserId());
+        service.save(meal, SecurityUtil.authUserId());
+    }
+
+    public List<MealTo> getBetween(LocalDate startDate, LocalDate endDate,
+                                   LocalTime startTime, LocalTime endTime) {
+        int userId = SecurityUtil.authUserId();
+        log.info("getBetween dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, userId);
+
+        List<Meal> mealsDateFiltered = service.getAllFiltered(userId, startDate, endDate);
+        log.info(String.valueOf(mealsDateFiltered));
+        return MealsUtil.getFilteredTos(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(), startTime, endTime);
     }
 }

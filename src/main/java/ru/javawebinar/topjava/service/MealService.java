@@ -38,7 +38,7 @@ public class MealService {
         return repository.getAllFilterByDate(userId, startDate, endDate);
     }
 
-    public void update(Meal meal, int userId) {
+    public void save(Meal meal, int userId) {
         checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 }
