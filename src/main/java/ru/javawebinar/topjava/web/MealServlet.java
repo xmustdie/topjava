@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.Role;
-import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.web.meal.MealRestController;
-import ru.javawebinar.topjava.web.user.AdminRestController;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,9 +31,6 @@ public class MealServlet extends HttpServlet {
     public void init() {
         applicationContext = new ClassPathXmlApplicationContext(CONFIG_LOCATION);
         System.out.printf("Bean definition names: %s%n", Arrays.toString(applicationContext.getBeanDefinitionNames()));
-        AdminRestController adminUserController = applicationContext.getBean(AdminRestController.class);
-        adminUserController.create(new User(null, "userName", "email@mail.ru", "password",
-                Role.ADMIN));
         restController = applicationContext.getBean(MealRestController.class);
     }
 
@@ -57,7 +51,7 @@ public class MealServlet extends HttpServlet {
                 Integer.parseInt(request.getParameter("calories")));
 
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        restController.save(meal, 1);
+        restController.update(meal, 1);
         response.sendRedirect("meals");
     }
 
@@ -76,22 +70,16 @@ public class MealServlet extends HttpServlet {
                 final Meal meal = "create".equals(action) ?
                         new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
                         restController.get(getId(request));
+
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
             case "filter":
-                String parameterStartDate = request.getParameter("startDate");
-                String parameterEndDate = request.getParameter("endDate");
-                String parameterStartTime = request.getParameter("startTime");
-                String parameterEndTime = request.getParameter("endTime");
-                LocalDate startDate = parameterStartDate.isEmpty() ? LocalDate.MIN :
-                        LocalDate.parse(parameterStartDate);
-                LocalDate endDate = parameterEndDate.isEmpty() ? LocalDate.MAX :
-                        LocalDate.parse(parameterEndDate);
-                LocalTime startTime = parameterStartTime.isEmpty() ? LocalTime.MIN :
-                        LocalTime.parse(parameterStartTime);
-                LocalTime endTime = parameterEndTime.isEmpty() ? LocalTime.MAX :
-                        LocalTime.parse(parameterEndTime);
+                LocalDate startDate = LocalDate.parse(request.getParameter("startDate"));
+                LocalDate endDate = LocalDate.parse(request.getParameter("endDate"));
+                LocalTime startTime = LocalTime.parse(request.getParameter("startTime"));
+                LocalTime endTime = LocalTime.parse(request.getParameter("endTime"));
+
                 request.setAttribute("meals", restController.getBetween(startDate, endDate, startTime, endTime));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
