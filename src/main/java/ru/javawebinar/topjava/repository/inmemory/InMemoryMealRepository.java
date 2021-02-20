@@ -40,7 +40,8 @@ public class InMemoryMealRepository implements MealRepository {
         } else if (userMeals.get(meal.getId()) == null) {
             return null;
         }
-        return userMeals.put(meal.getId(), meal);
+        userMeals.put(meal.getId(), meal);
+        return meal;
     }
 
     @Override

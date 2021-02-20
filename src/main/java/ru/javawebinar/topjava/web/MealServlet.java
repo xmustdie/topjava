@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class MealServlet extends HttpServlet {
@@ -30,7 +29,6 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init() {
         applicationContext = new ClassPathXmlApplicationContext(CONFIG_LOCATION);
-        System.out.printf("Bean definition names: %s%n", Arrays.toString(applicationContext.getBeanDefinitionNames()));
         restController = applicationContext.getBean(MealRestController.class);
     }
 
