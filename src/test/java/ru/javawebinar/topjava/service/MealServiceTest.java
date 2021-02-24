@@ -16,7 +16,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import java.time.LocalDate;
 import java.time.Month;
 
-import static java.time.LocalDateTime.of;
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -39,10 +38,10 @@ public class MealServiceTest extends TestCase {
 
     @Test
     public void create() {
-        Meal newMeal = new Meal(null, of(2020, Month.FEBRUARY, 1, 18, 0),
-                "Созданный ужин", 300);
-        Meal createdMeal = service.create(newMeal, USER_ID);
-        newMeal.setId(createdMeal.getId());
+        Meal created = service.create(new Meal(mealToCreate), USER_ID);
+        Integer newId = created.getId();
+        Meal newMeal = new Meal(mealToCreate);
+        newMeal.setId(newId);
         assertMatch(service.getAll(USER_ID), newMeal, meal7, meal6, meal5, meal4, meal3, meal2, meal1);
     }
 
@@ -54,9 +53,11 @@ public class MealServiceTest extends TestCase {
 
     @Test
     public void update() {
-        Meal updated = new Meal(MEAL1_ID, adminMeal.getDateTime(), "Обновленный завтрак", 200);
+        Meal updated = new Meal(mealToUpdate);
         service.update(updated, USER_ID);
-        assertMatch(service.get(MEAL1_ID, USER_ID), updated);
+        updated = new Meal(mealToUpdate);
+
+        assertMatch(service.get(mealToUpdate.getId(), USER_ID), updated);
     }
 
     @Test
