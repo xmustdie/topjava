@@ -42,6 +42,7 @@ public class MealServiceTest extends TestCase {
         Integer newId = created.getId();
         Meal newMeal = new Meal(mealToCreate);
         newMeal.setId(newId);
+        assertMatch(created, newMeal);
         assertMatch(service.getAll(USER_ID), newMeal, meal7, meal6, meal5, meal4, meal3, meal2, meal1);
     }
 

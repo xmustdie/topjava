@@ -33,7 +33,7 @@ public class MealTestData {
             "Админ ланч", 510);
     public static final Meal mealToCreate = new Meal(null, of(2020, Month.FEBRUARY, 1, 18, 0),
             "Созданный ужин", 300);
-    public static final Meal mealToUpdate = new Meal(MEAL1_ID, of(2020, Month.JANUARY, 30, 10, 0),
+    public static final Meal mealToUpdate = new Meal(MEAL1_ID, adminMeal.getDateTime(),
             "Измененный завтрак", 1500);
     public static final Meal duplicateDateMeal = new Meal(null, meal1.getDateTime(),
             "Дублирующая дата", 300);
