@@ -3,8 +3,7 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -14,14 +13,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -32,33 +31,26 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
         "classpath:spring/spring-app.xml",
         "classpath:spring/spring-db.xml"
 })
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static Map<String, Long> mapTestTimelapse = new HashMap<>();
-    private long start;
+    private static final List<String> listTestTimelapse = new ArrayList<>();
 
     @Rule
-    public final TestRule watchman = new TestWatcher() {
+    public final Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            start = System.currentTimeMillis();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            Long timelapse = System.currentTimeMillis() - start;
-            mapTestTimelapse.put(description.getMethodName(), timelapse);
-            log.info("Test {} - {} ms",description.getMethodName(), timelapse);
+        protected void finished(long nanos, Description description) {
+            String logInfo = String.format("%-24s - %d", description.getMethodName(),
+                    (nanos / 1000000));
+            log.info(logInfo);
+            listTestTimelapse.add(logInfo);
         }
     };
 
     @AfterClass
     public static void printTestTimelapse() {
-        for (Map.Entry<String, Long> entry : mapTestTimelapse.entrySet()) {
-            log.info("Test {} - {} ms", entry.getKey(), entry.getValue());
-        }
+        listTestTimelapse.forEach(log::info);
     }
 
     @Autowired
@@ -95,7 +87,6 @@ public class MealServiceTest {
         assertThrows(DataAccessException.class, () ->
                 service.create(new Meal(null, meal1.getDateTime(), "duplicate", 100), USER_ID));
     }
-
 
     @Test
     public void get() {
