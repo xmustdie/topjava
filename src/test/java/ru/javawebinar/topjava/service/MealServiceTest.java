@@ -13,14 +13,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -31,30 +30,30 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
         "classpath:spring/spring-app.xml",
         "classpath:spring/spring-db.xml"
 })
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static final List<String> listTestTimelapse = new ArrayList<>();
+    private static final StringBuilder timeLapse = new StringBuilder();
+
+    @Autowired
+    private MealService service;
 
     @Rule
     public final Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
-            String logInfo = String.format("%-24s - %d", description.getMethodName(),
-                    (nanos / 1000000));
+            String logInfo = String.format("%-24s - %d ms", description.getMethodName(),
+                    TimeUnit.NANOSECONDS.toMillis(nanos));
             log.info(logInfo);
-            listTestTimelapse.add(logInfo);
+            timeLapse.append("\n").append(logInfo);
         }
     };
 
     @AfterClass
     public static void printTestTimelapse() {
-        listTestTimelapse.forEach(log::info);
+        log.info(timeLapse.toString());
     }
-
-    @Autowired
-    private MealService service;
 
     @Test
     public void delete() {

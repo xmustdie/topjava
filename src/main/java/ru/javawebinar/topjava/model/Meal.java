@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.model;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Range;
@@ -12,8 +11,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @NamedQueries({
-        @NamedQuery(name = Meal.GET, query = "SELECT m FROM Meal m WHERE m.user.id = :user_id and" +
-                " m.id =:id"),
         @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.user.id =:user_id and" +
                 " m.id=:id"),
         @NamedQuery(name = Meal.GET_ALL, query = "SELECT m FROM Meal m WHERE m.user.id =:user_id" +
@@ -29,7 +26,6 @@ import java.time.LocalTime;
 public class Meal extends AbstractBaseEntity {
     public static final String DELETE = "Meal.delete";
     public static final String GET_ALL = "Meal.getAll";
-    public static final String GET = "Meal.get";
     public static final String GET_BETWEEN_HALF_OPEN = "Meal.getBetweenHalfOpen";
 
     @Column(name = "date_time", nullable = false)
@@ -41,7 +37,6 @@ public class Meal extends AbstractBaseEntity {
     @Size(min = 2, max = 120)
     private String description;
 
-    @NotEmpty
     @Column(name = "calories", nullable = false)
     @Range(min = 10, max = 5000)
     private int calories;
