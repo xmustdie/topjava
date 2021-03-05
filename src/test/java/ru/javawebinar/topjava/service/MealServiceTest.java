@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.Month;
 
 import static org.junit.Assert.assertThrows;
+import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
@@ -88,7 +89,8 @@ public class MealServiceTest {
 
     @Test
     public void updateNotOwn() {
-        assertThrows(NotFoundException.class, () -> service.update(meal1, ADMIN_ID));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> service.update(meal1, ADMIN_ID));
+        Assert.assertEquals("Not found entity with id=" + MEAL1_ID, exception.getMessage());
         MEAL_MATCHER.assertMatch(service.get(MEAL1_ID, USER_ID), meal1);
     }
 
