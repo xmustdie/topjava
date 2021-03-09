@@ -48,9 +48,9 @@ public abstract class AbstractJdbcMealRepository implements MealRepository {
             Number newId = insertMeal.executeAndReturnKey(map);
             meal.setId(newId.intValue());
         } else {
-            if (namedParameterJdbcTemplate.update("UPDATE meals " +
-                    "   SET description=:description, calories=:calories, date_time=:date_time " +
-                    " WHERE id=:id AND user_id=:user_id", map) == 0) {
+            if (namedParameterJdbcTemplate
+                    .update("UPDATE meals SET description=:description, calories=:calories, " +
+                            "date_time=:date_time WHERE id=:id AND user_id=:user_id", map) == 0) {
                 return null;
             }
         }
@@ -75,11 +75,12 @@ public abstract class AbstractJdbcMealRepository implements MealRepository {
                 "SELECT * FROM meals WHERE user_id=? ORDER BY date_time DESC", ROW_MAPPER, userId);
     }
 
-    public List<Meal> getBetweenHalfOpen(LocalDateTime startDate, LocalDateTime endDate,
-                                        int userId) {
+    public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime,
+                                         int userId) {
         return jdbcTemplate.query(
-                "SELECT * FROM meals WHERE user_id=?  AND date_time BETWEEN  ? AND ? ORDER BY date_time DESC",
-                AbstractJdbcMealRepository.getRowMapper(), userId, startDate, endDate);
+                "SELECT * FROM meals WHERE user_id=?  AND date_time >= ? AND date_time < ? ORDER " +
+                        "BY date_time DESC",
+                AbstractJdbcMealRepository.getRowMapper(), userId, startDateTime, endDateTime);
     }
 
     public static RowMapper<Meal> getRowMapper() {
