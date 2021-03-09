@@ -30,7 +30,8 @@ public class Profiles {
     //http://stackoverflow.com/questions/23871255/spring-profiles-simple-example-of-activeprofilesresolver
     public static class ActiveDbProfileResolver implements ActiveProfilesResolver {
         @Override
-        public @NonNull String[] resolve(@NonNull Class<?> aClass) {
+        public @NonNull
+        String[] resolve(@NonNull Class<?> aClass) {
             return new String[]{getActiveDbProfile()};
         }
     }
