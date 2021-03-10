@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.service;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -30,6 +31,12 @@ public abstract class AbstractMealServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    public void duplicateDateTimeCreate() {
+        assertThrows(DataAccessException.class, () ->
+                service.create(new Meal(null, meal1.getDateTime(), "duplicate", 100), USER_ID));
+    }
+
+    @Test
     public void update() {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
@@ -38,9 +45,9 @@ public abstract class AbstractMealServiceTest extends AbstractServiceTest {
 
     @Test
     public void updateNotOwn() {
-        NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> service.update(meal1, ADMIN_ID));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> service.update(meal1, ADMIN_ID));
         Assert.assertEquals("Not found entity with id=" + MEAL1_ID, exception.getMessage());
+        MEAL_MATCHER.assertMatch(service.get(MEAL1_ID, USER_ID), meal1);
     }
 
     @Test

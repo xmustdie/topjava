@@ -11,6 +11,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.Profiles.DATAJPA;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
+import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 @ActiveProfiles(DATAJPA)
 public class DataJpaMealServiceTest extends AbstractMealServiceTest {
@@ -25,5 +26,11 @@ public class DataJpaMealServiceTest extends AbstractMealServiceTest {
     public void getWithUserNotFound() {
         Assert.assertThrows(NotFoundException.class,
                 () -> service.getWithUser(1, ADMIN_ID));
+    }
+
+    @Test
+    public void getWithUserNotOwn() {
+        Assert.assertThrows(NotFoundException.class,
+                () -> service.getWithUser(ADMIN_MEAL_ID, USER_ID));
     }
 }
