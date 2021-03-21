@@ -10,7 +10,8 @@ import java.util.List;
 @Repository
 public class DataJpaMealRepository implements MealRepository {
 
-    private final CrudMealRepository crudRepository;
+    private final CrudMealRepository crudMealRepository;
+    private final CrudUserRepository crudUserRepository;
 
     public DataJpaMealRepository(CrudMealRepository crudRepository) {
         this.crudRepository = crudRepository;
