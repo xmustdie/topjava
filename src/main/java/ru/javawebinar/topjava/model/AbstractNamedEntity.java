@@ -1,9 +1,10 @@
 package ru.javawebinar.topjava.model;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 
 
 @MappedSuperclass
