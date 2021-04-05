@@ -1,7 +1,7 @@
-let form;
+let ctx, form;
 
-function makeEditable(datatableApi) {
-    ctx.datatableApi = datatableApi;
+function makeEditable(context) {
+    ctx = context;
 
     form = $('#detailsForm');
     $(".delete").click(function () {
@@ -10,7 +10,7 @@ function makeEditable(datatableApi) {
         }
     });
 
-    $(document).ajaxError(function (event, jqXHR, options, jsExc) {
+    $(document).ajaxError(function (event, jqXHR) {
         failNoty(jqXHR);
     });
 
@@ -37,6 +37,10 @@ function updateTable() {
     $.get(ctx.ajaxUrl, function (data) {
         ctx.datatableApi.clear().rows.add(data).draw();
     });
+}
+
+function updateTableWithData(data) {
+    ctx.datatableApi.clear().rows.add(data).draw();
 }
 
 function save() {
