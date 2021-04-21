@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -92,7 +95,8 @@ class AdminRestControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(admin))
-                .content(JsonUtil.writeValue(updated)))
+                .content(JsonUtil.writeValue(updated))
+                .content(jsonWithPassword(updated, "password")))
                 .andExpect(status().isNoContent());
 
         USER_MATCHER.assertMatch(userService.get(USER_ID), getUpdated());
@@ -144,5 +148,18 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent());
 
         assertFalse(userService.get(USER_ID).isEnabled());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createDuplicateEmail() throws Exception {
+        User expected = new User(null, "New", "admin@gmail.com", "newPass", 2300, Role.USER);
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(expected, "newPass")))
+                .andDo(print())
+                .andExpect(content().string("{\"url\":\"http://localhost/rest/admin/users/\",\"type\":\"DATA_ERROR\",\"detail\":\"User with this email already exists\"}"))
+                .andExpect(status().isConflict());
     }
 }

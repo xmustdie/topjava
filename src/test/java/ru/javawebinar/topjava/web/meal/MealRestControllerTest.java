@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -72,7 +75,7 @@ class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void update() throws Exception {
-        Meal updated = getUpdated();
+        Meal updated = MealTestData.getUpdated();
         perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(updated))
                 .with(userHttpBasic(user)))
@@ -82,8 +85,17 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void updateInvalidData() throws Exception {
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(new Meal()))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
     void createWithLocation() throws Exception {
-        Meal newMeal = getNew();
+        Meal newMeal = MealTestData.getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newMeal))
@@ -94,6 +106,15 @@ class MealRestControllerTest extends AbstractControllerTest {
         newMeal.setId(newId);
         MEAL_MATCHER.assertMatch(created, newMeal);
         MEAL_MATCHER.assertMatch(mealService.get(newId, USER_ID), newMeal);
+    }
+
+    @Test
+    void createInvalidData() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(new Meal()))
+                .with(userHttpBasic(user)))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -123,5 +144,18 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(user)))
                 .andExpect(status().isOk())
                 .andExpect(MEAL_TO_MATCHER.contentJson(getTos(meals, user.getCaloriesPerDay())));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createDuplicateDateTime() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(new Meal(null, meal1.getDateTime(), "duplicate", 100)))
+                .with(userHttpBasic(user)))
+                .andExpect(content().string("{\"url\":\"http://localhost/rest/profile/meals/\"," +
+                        "\"type\":\"DATA_ERROR\",\"detail\":\"Meal with same Date and Time " +
+                        "already exists\"}"))
+                .andExpect(status().isConflict());
     }
 }

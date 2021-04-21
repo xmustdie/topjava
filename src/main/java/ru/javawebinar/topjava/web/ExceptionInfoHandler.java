@@ -7,6 +7,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +21,7 @@ import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
@@ -38,12 +41,22 @@ public class ExceptionInfoHandler {
     @ResponseStatus(HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR);
+        Throwable rootCause = ValidationUtil.getRootCause(e);
+        log.error(DATA_ERROR + " : request " + req.getRequestURL(), rootCause);
+        if(rootCause.toString().contains("users_unique_email_idx"))
+            return new ErrorInfo(req.getRequestURL(), DATA_ERROR, "User with this email already " +
+                    "exists");
+        if(rootCause.toString().contains("meals_unique_user_datetime_idx"))
+            return new ErrorInfo(req.getRequestURL(), DATA_ERROR, "Meal with same Date and Time " +
+                    "already exists");
+        return new ErrorInfo(req.getRequestURL(), DATA_ERROR, rootCause.toString());
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
     @ExceptionHandler({IllegalRequestDataException.class, ValidationException.class,
-            MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
+            MethodArgumentTypeMismatchException.class,
+            HttpMessageNotReadableException.class, MethodArgumentNotValidException.class,
+            ConstraintViolationException.class, BindException.class})
     public ErrorInfo illegalRequestDataError(HttpServletRequest req, Exception e) {
         return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR);
     }
@@ -51,6 +64,7 @@ public class ExceptionInfoHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public ErrorInfo handleError(HttpServletRequest req, Exception e) {
+        log.info(e.toString());
         return logAndGetErrorInfo(req, e, true, APP_ERROR);
     }
 
