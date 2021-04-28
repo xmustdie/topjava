@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.to;
 
 import org.hibernate.validator.constraints.Range;
 import ru.javawebinar.topjava.HasIdAndEmail;
+import ru.javawebinar.topjava.util.SanitizeHtml;
 import ru.javawebinar.topjava.util.UserUtil;
 
 import javax.validation.constraints.Email;
@@ -22,6 +23,7 @@ public class UserTo extends BaseTo implements HasIdAndEmail, Serializable {
     @Email
     @NotBlank
     @Size(max = 100)
+    @SanitizeHtml
     private String email;
 
     @NotBlank
